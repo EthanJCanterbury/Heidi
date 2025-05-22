@@ -1,4 +1,3 @@
-
 {
   "display_information": {
     "name": "Hedi",
@@ -15,7 +14,7 @@
         "command": "/h-id",
         "description": "Get IDs of users, channels, or usergroups",
         "usage_hint": "@username #channel",
-        "should_escape": false
+        "should_escape": true
       },
       {
         "command": "/h-channel",
@@ -35,7 +34,7 @@
         "usage_hint": "number",
         "should_escape": false
       },
-      
+
       {
         "command": "/h-admin-add",
         "description": "Add a user to the admin list",
@@ -46,7 +45,7 @@
         "command": "/h-email",
         "description": "Get email of a user",
         "usage_hint": "@username",
-        "should_escape": false
+        "should_escape": true
       }
     ]
   },
@@ -61,7 +60,6 @@
         "chat:write.customize",
         "chat:write.public",
         "commands",
-        "conversations:history",
         "groups:history",
         "groups:read",
         "groups:write",
