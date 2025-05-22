@@ -18,7 +18,3 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "bun src/index.ts"
-
-[[ports]]
-localPort = 3000
-externalPort = 80
