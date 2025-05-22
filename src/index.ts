@@ -12,10 +12,39 @@ export const app = new App({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
   socketMode: true,
   appToken: process.env.SLACK_APP_TOKEN,
+  customRoutes: [
+    {
+      path: '/health',
+      method: ['GET'],
+      handler: (req, res) => {
+        res.writeHead(200);
+        res.end('Health check OK');
+      },
+    },
+  ],
 });
+
+let retryCount = 0;
+const maxRetries = 5;
+const retryDelay = 5000; // 5 seconds
 
 app.error(async (error) => {
   console.error('An error occurred:', error);
+  
+  if (error.message?.includes('server explicit disconnect') && retryCount < maxRetries) {
+    retryCount++;
+    console.log(`Attempting to reconnect (${retryCount}/${maxRetries}) in ${retryDelay/1000} seconds...`);
+    
+    setTimeout(async () => {
+      try {
+        await app.start();
+        console.log('⚡️ Reconnected successfully!');
+        retryCount = 0;
+      } catch (reconnectError) {
+        console.error('Reconnection failed:', reconnectError);
+      }
+    }, retryDelay);
+  }
 });
 
 // Register commands
