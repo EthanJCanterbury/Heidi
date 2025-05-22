@@ -49,7 +49,7 @@
       {
         "command": "/h-yap",
         "description": "Start or stop continuous AI messages in the channel",
-        "usage_hint": "",
+        "usage_hint": "yippity yap",
         "should_escape": false
       }
     ]
