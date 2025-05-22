@@ -6,7 +6,7 @@
   },
   "features": {
     "bot_user": {
-      "display_name": "Hedi",
+      "display_name": "Heidi",
       "always_online": true
     },
     "slash_commands": [

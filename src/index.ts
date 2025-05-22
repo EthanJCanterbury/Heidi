@@ -33,5 +33,5 @@ app.command('/h-pi', hPi);
 // Start the app
 (async () => {
   await app.start();
-  console.log('⚡️ Hedi bot is running!');
+  console.log('⚡️ Heidi bot is running!');
 })();
