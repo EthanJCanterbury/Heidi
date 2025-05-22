@@ -1,7 +1,7 @@
 {
   "display_information": {
-    "name": "Hedi",
-    "description": "A Slack bot with various admin tools and utilities",
+    "name": "Heidi",
+    "description": "Looking for trash...",
     "background_color": "#4A154B"
   },
   "features": {
@@ -34,7 +34,6 @@
         "usage_hint": "number",
         "should_escape": false
       },
-
       {
         "command": "/h-admin-add",
         "description": "Add a user to the admin list",
@@ -68,11 +67,18 @@
         "usergroups:read",
         "usergroups:write",
         "users:read",
-        "users:read.email"
+        "users:read.email",
+        "emoji:read",
+        "pins:read",
+        "pins:write",
+        "reactions:read"
       ]
     }
   },
   "settings": {
+    "interactivity": {
+      "is_enabled": true
+    },
     "org_deploy_enabled": false,
     "socket_mode_enabled": true,
     "token_rotation_enabled": false
