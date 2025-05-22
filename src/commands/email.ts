@@ -11,8 +11,9 @@ export async function hEmail({
   
   // Check if the user is an admin
   if (!await isAdmin(command.user_id)) {
-    await client.chat.postMessage({
-      channel: command.user_id,
+    await client.chat.postEphemeral({
+      channel: command.channel_id,
+      user: command.user_id,
       text: "You do not have permission to use this command. Only admins can execute Heidi's commands."
     });
     return;
@@ -22,8 +23,9 @@ export async function hEmail({
   const mentions = [...command.text.matchAll(/<@([^>|]+)(?:\|[^>]+)?>/g)];
   
   if (mentions.length === 0) {
-    await client.chat.postMessage({
+    await client.chat.postEphemeral({
       channel: command.channel_id,
+      user: command.user_id,
       text: "Please mention a user to get their email."
     });
     return;
@@ -43,20 +45,23 @@ export async function hEmail({
     const email = result.user.profile?.email;
     
     if (!email) {
-      await client.chat.postMessage({
+      await client.chat.postEphemeral({
         channel: command.channel_id,
+        user: command.user_id,
         text: `No email found for user <@${userId}>`
       });
       return;
     }
 
-    await client.chat.postMessage({
+    await client.chat.postEphemeral({
       channel: command.channel_id,
+      user: command.user_id,
       text: `Email for <@${userId}>: ${email}`
     });
   } catch (error) {
-    await client.chat.postMessage({
+    await client.chat.postEphemeral({
       channel: command.channel_id,
+      user: command.user_id,
       text: `Error getting email: ${error}`
     });
   }
