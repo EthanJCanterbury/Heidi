@@ -47,20 +47,34 @@ export async function hPurge({
     // Delete messages
     for (const msg of messagesToDelete) {
       try {
+        // Try to delete the message
         await client.chat.delete({
           channel: command.channel_id,
           ts: msg.ts as string
         });
         deletedCount++;
       } catch (error) {
+        // Log the error but continue with other messages
         console.error(`Error deleting message ${msg.ts}: ${error}`);
+        
+        // If we can't delete it (likely because it's not our message),
+        // try to add a tombstone reaction to mark it as "deleted"
+        try {
+          await client.reactions.add({
+            channel: command.channel_id,
+            timestamp: msg.ts as string,
+            name: "x"  // Using the "x" emoji as a marker
+          });
+        } catch (reactionError) {
+          console.error(`Error adding reaction to message ${msg.ts}: ${reactionError}`);
+        }
       }
     }
 
     // Send confirmation
     await client.chat.postMessage({
       channel: command.channel_id,
-      text: `Purged ${deletedCount} messages.`
+      text: `Purged ${deletedCount} messages.${deletedCount < messagesToDelete.length ? ` (${messagesToDelete.length - deletedCount} messages couldn't be deleted but were marked with an ❌ reaction)` : ""}`
     });
   } catch (error) {
     console.error(`Error during purge: ${error}`);
