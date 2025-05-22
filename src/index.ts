@@ -1,0 +1,33 @@
+
+import { App } from '@slack/bolt';
+import { hId } from './commands/get-id';
+import { hChannel } from './commands/channel';
+import { hAsk } from './commands/ask';
+import { hPurge } from './commands/purge';
+
+import { hAdminAdd } from './commands/admin-add';
+
+export const app = new App({
+  token: process.env.SLACK_BOT_TOKEN,
+  signingSecret: process.env.SLACK_SIGNING_SECRET,
+  socketMode: true,
+  appToken: process.env.SLACK_APP_TOKEN,
+});
+
+app.error(async (error) => {
+  console.error('An error occurred:', error);
+});
+
+// Register commands
+app.command('/h-id', hId);
+app.command('/h-channel', hChannel);
+app.command('/h-ask', hAsk);
+app.command('/h-purge', hPurge);
+
+app.command('/h-admin-add', hAdminAdd);
+
+// Start the app
+(async () => {
+  await app.start();
+  console.log('⚡️ Hedi bot is running!');
+})();

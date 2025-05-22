@@ -1,0 +1,441 @@
+import os
+import requests
+import json
+from slack_bolt import App
+from slack_bolt.adapter.socket_mode import SocketModeHandler
+
+# Initialize the Slack app
+app = App(token=os.environ.get("SLACK_BOT_TOKEN"))
+
+# Load admin list from JSON file
+def load_admins():
+    try:
+        with open("admins.json", "r") as f:
+            data = json.load(f)
+            return data.get("admins", [])
+    except Exception as e:
+        print(f"Error loading admins: {str(e)}")
+        return []
+
+# Check if a user is an admin
+def is_admin(user_id):
+    admins = load_admins()
+    return user_id in admins
+
+# Add an admin to the list
+def add_admin(user_id):
+    if not user_id.startswith("U"):
+        return False, "User ID must start with 'U'"
+        
+    try:
+        admins = load_admins()
+        if user_id in admins:
+            return False, "User is already an admin"
+            
+        admins.append(user_id)
+        with open("admins.json", "w") as f:
+            json.dump({"admins": admins}, f, indent=2)
+        return True, f"Added <@{user_id}> as an admin"
+    except Exception as e:
+        return False, f"Error adding admin: {str(e)}"
+
+# Command to send @channel message disguised as the user
+@app.command("/h-channel")
+def pchannel_command(ack, command, client):
+    ack()
+    
+    # Check if the user is an admin
+    if not is_admin(command["user_id"]):
+        client.chat_postMessage(
+            channel=command["user_id"],
+            text="You do not have permission to use this command. Only admins can execute Heidi's commands."
+        )
+        return
+
+    # Get user info
+    user_info = client.users_info(user=command["user_id"])
+    user_name = user_info["user"]["real_name"]
+    user_id = command["user_id"]
+    channel_id = command["channel_id"]
+
+    # Extract the message
+    message = command["text"]
+
+    # Create final message with proper channel mention
+    if "@channel" in message:
+        final_message = message
+    else:
+        final_message = f"<!channel> {message}"
+
+    # Get user avatar
+    avatar = user_info["user"]["profile"].get("image_original") or user_info["user"]["profile"]["image_192"]
+
+    # Prepare payload with blocks for proper formatting
+    payload = {
+        "text": final_message,
+        "username": user_name,
+        "icon_url": avatar,
+        "blocks": [
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": final_message
+                }
+            }
+        ]
+    }
+
+    try:
+        # Send the message
+        response = client.chat_postMessage(
+            channel=channel_id,
+            **payload
+        )
+
+        if not response.get("ts"):
+            raise Exception("Failed to send ping - no timestamp returned")
+
+        print(f"Successfully sent channel ping with ts: {response.get('ts')}")
+
+    except Exception as e:
+        print(f"Error sending channel notification: {str(e)}")
+        # Notify the user of the error
+        client.chat_postMessage(
+            channel=user_id,  # Send DM to the user
+            text=f"Error sending channel notification: {str(e)}"
+        )
+
+# Command to ask AI a question
+@app.command("/h-ask")
+def pask_command(ack, command, client):
+    ack()
+    
+    # Check if the user is an admin
+    if not is_admin(command["user_id"]):
+        client.chat_postMessage(
+            channel=command["user_id"],
+            text="You do not have permission to use this command. Only admins can execute Heidi's commands."
+        )
+        return
+
+    # Extract the question
+    question = command["text"]
+    channel_id = command["channel_id"]
+
+    # Send loading message first
+    loading_msg = client.chat_postMessage(
+        channel=channel_id,
+        text="Loading..."
+    )
+
+    try:
+        # Call the AI API
+        response = requests.post(
+            "https://ai.hackclub.com/chat/completions",
+            headers={"Content-Type": "application/json"},
+            json={"messages": [{"role": "user", "content": question}]}
+        )
+
+        # Extract the AI's answer
+        response_data = response.json()
+        ai_answer = response_data["choices"][0]["message"]["content"]
+
+        # Update the loading message with the answer
+        client.chat_update(
+            channel=channel_id,
+            ts=loading_msg["ts"],
+            text=ai_answer
+        )
+
+    except Exception as e:
+        # Update loading message with error
+        client.chat_update(
+            channel=channel_id,
+            ts=loading_msg["ts"],
+            text=f"Sorry, I couldn't get an answer: {str(e)}"
+        )
+
+# Command to purge messages
+@app.command("/h-purge")
+def purge_command(ack, command, client):
+    ack()
+    
+    # Check if the user is an admin
+    if not is_admin(command["user_id"]):
+        client.chat_postMessage(
+            channel=command["user_id"],
+            text="You do not have permission to use this command. Only admins can execute Heidi's commands."
+        )
+        return
+
+    try:
+        # Extract number of messages to delete
+        try:
+            count = int(command["text"])
+            if count <= 0:
+                raise ValueError("Number must be positive")
+        except ValueError:
+            client.chat_postMessage(
+                channel=command["channel_id"],
+                text="Please provide a valid positive number of messages to purge."
+            )
+            return
+
+        # Get channel history
+        result = client.conversations_history(
+            channel=command["channel_id"],
+            limit=count + 1  # +1 to include the command itself
+        )
+
+        # Skip the first message (the command itself)
+        messages_to_delete = result["messages"][1:count+1]
+        deleted_count = 0
+
+        # Delete messages
+        for msg in messages_to_delete:
+            try:
+                client.chat_delete(
+                    channel=command["channel_id"],
+                    ts=msg["ts"]
+                )
+                deleted_count += 1
+            except Exception as e:
+                print(f"Error deleting message {msg['ts']}: {str(e)}")
+
+        # Send confirmation
+        client.chat_postMessage(
+            channel=command["channel_id"],
+            text=f"Purged {deleted_count} messages."
+        )
+
+    except Exception as e:
+        print(f"Error during purge: {str(e)}")
+        client.chat_postMessage(
+            channel=command["channel_id"],
+            text=f"Error during purge: {str(e)}"
+        )
+
+# Command to warn a user about conduct violations
+@app.command("/h-warn")
+def warn_command(ack, command, client):
+    ack()
+    
+    # Check if the user is an admin
+    if not is_admin(command["user_id"]):
+        client.chat_postMessage(
+            channel=command["user_id"],
+            text="You do not have permission to use this command. Only admins can execute Heidi's commands."
+        )
+        return
+
+    try:
+        print(f"Processing warn command: {json.dumps(command, indent=2)}")
+        
+        # Parse the command text to extract user ID and reason
+        command_text = command["text"].strip()
+        print(f"Command text: '{command_text}'")
+
+        # Check if there's any text
+        if not command_text:
+            print("No command text provided")
+            client.chat_postMessage(
+                channel=command["user_id"],
+                text="Please specify a user to warn using the format: `/h-warn @username reason for warning`"
+            )
+            return
+
+        # Extract mentioned users using regex
+        import re
+        
+        # Debug the raw command text
+        print(f"Raw command text for analysis: '{command_text}'")
+        
+        # Look for Slack mentions in various formats:
+        # <@U12345> or <@U12345|username>
+        slack_mentions = re.findall(r'<@([^|>]+)(?:\|[^>]+)?>', command_text)
+        print(f"Detected Slack mentions: {slack_mentions}")
+        
+        # If no mentions found, let's try to parse it differently
+        if not slack_mentions:
+            parts = command_text.split(" ", 1)
+            user_id_text = parts[0].strip()
+            print(f"User ID text: '{user_id_text}'")
+            
+            if user_id_text.startswith("@"):
+                # Try to fetch user by username
+                try:
+                    username = user_id_text[1:]  # Remove the @ symbol
+                    print(f"Looking up user by username: {username}")
+                    
+                    # Use users_list to find user by username
+                    users_list = client.users_list()
+                    found_user = None
+                    
+                    print(f"Searching through {len(users_list['members'])} users")
+                    for user in users_list["members"]:
+                        # Debug the user's name fields
+                        print(f"Checking user: name={user.get('name')}, real_name={user.get('real_name')}, display_name={user.get('profile', {}).get('display_name')}")
+                        
+                        # Check multiple name fields with case-insensitive comparison
+                        if (user.get("name", "").lower() == username.lower() or 
+                            user.get("real_name", "").lower() == username.lower() or
+                            user.get("profile", {}).get("display_name", "").lower() == username.lower() or
+                            user.get("profile", {}).get("real_name", "").lower() == username.lower()):
+                            found_user = user
+                            print(f"Found matching user: {user.get('id')}")
+                            break
+                    
+                    if found_user:
+                        user_id = found_user["id"]
+                        print(f"Found user by username lookup: {user_id}")
+                    else:
+                        raise Exception(f"User with username {username} not found")
+                        
+                except Exception as e:
+                    print(f"Error looking up user by username: {str(e)}")
+                    client.chat_postMessage(
+                        channel=command["user_id"],
+                        text=f"Could not find user with username '{username}'. Please use Slack's mention feature by typing @ and selecting the user from the dropdown. Alternatively, you can use the user ID directly (format: U12345...)."
+                    )
+                    return
+            elif user_id_text.startswith("U"):
+                # Direct user ID
+                user_id = user_id_text
+                print(f"Using user ID as provided: {user_id}")
+            else:
+                # Invalid format
+                client.chat_postMessage(
+                    channel=command["user_id"],
+                    text="Please mention a user with @ or provide a valid user ID starting with U."
+                )
+                return
+        else:
+            # Use the first mentioned user ID
+            user_id = slack_mentions[0]
+            print(f"Extracted user ID from mention: {user_id}")
+            
+            # Update command_text to remove the mention for extracting the reason later
+            command_text = re.sub(r'<@[^>]+>\s*', '', command_text, 1)
+            
+        # Validate the user ID format
+        if not user_id.startswith("U"):
+            print(f"User ID does not start with U: {user_id}")
+            client.chat_postMessage(
+                channel=command["user_id"],
+                text="Invalid user ID format. Please mention a user with @ or use a valid user ID."
+            )
+            return
+            
+        # Verify the user ID exists
+        try:
+            user_info = client.users_info(user=user_id)
+            if not user_info or not user_info.get("user"):
+                raise Exception(f"User with ID {user_id} not found")
+            print(f"Verified user exists: {user_id}")
+        except Exception as e:
+            print(f"Error verifying user: {str(e)}")
+            client.chat_postMessage(
+                channel=command["user_id"],
+                text=f"Error finding user: {str(e)}\nPlease make sure you're using a valid Slack user ID."
+            )
+            return
+
+        # Get reason if provided (command_text now has the mention removed if there was one)
+        reason = command_text if slack_mentions else (parts[1] if len(parts) > 1 else "Violation of Code of Conduct")
+        print(f"Reason: '{reason}'")
+
+        # Get warner's info
+        print(f"Getting warner info for user ID: {command['user_id']}")
+        warner_info = client.users_info(user=command["user_id"])
+        warner_name = warner_info["user"]["real_name"]
+        print(f"Warner name: {warner_name}")
+
+        # Craft the warning message
+        warning_message = f"""
+Hello <@{user_id}>,
+
+You have received a formal warning from {warner_name} for the following reason:
+*{reason}*
+
+This behavior appears to violate Hack Club's Code of Conduct: https://hackclub.com/conduct/
+
+The Code of Conduct is designed to create a safe, respectful environment for everyone. We ask that you take a moment to review the guidelines and adjust your behavior accordingly.
+
+If you have any questions or believe this warning was issued in error, please reach out to the person who issued the warning or a community moderator.
+
+Thank you for your understanding and cooperation.
+"""
+        print(f"Attempting to send DM to user ID: {user_id}")
+        
+        # Send DM to the user
+        dm_response = client.chat_postMessage(
+            channel=user_id,
+            text=warning_message
+        )
+        print(f"DM send response: Success - message_ts: {dm_response.get('ts')}")
+
+        print(f"Sending confirmation to warner: {command['user_id']}")
+        # Send confirmation to the person who issued the warning
+        confirm_response = client.chat_postMessage(
+            channel=command["user_id"],
+            text=f"Warning has been sent to <@{user_id}> regarding: {reason}"
+        )
+        print(f"Confirmation send response: Success - message_ts: {confirm_response.get('ts')}")
+
+    except Exception as e:
+        print(f"Error sending warning: {str(e)}")
+
+
+# Command to add an admin
+@app.command("/h-admin-add")
+def admin_add_command(ack, command, client):
+    ack()
+    
+    # Check if the user is an admin
+    if not is_admin(command["user_id"]):
+        client.chat_postMessage(
+            channel=command["user_id"],
+            text="You do not have permission to add admins."
+        )
+        return
+        
+    # Extract the user ID to add
+    user_id_text = command["text"].strip()
+    
+    # Clean up user ID text if it's a mention
+    if user_id_text.startswith("<@") and ">" in user_id_text:
+        user_id = user_id_text[2:-1]  # Remove <@ and >
+    else:
+        user_id = user_id_text
+        
+    # Add the admin
+    success, message = add_admin(user_id)
+    
+    # Send response
+    client.chat_postMessage(
+        channel=command["user_id"],
+        text=message
+    )
+
+# Add error handler to catch and log errors
+@app.error
+def error_handler(error):
+    print(f"Error: {error}")
+
+# Start the app
+if __name__ == "__main__":
+    # Get the app token
+    app_token = os.environ.get("SLACK_APP_TOKEN")
+
+    # Check if tokens are set
+    if not os.environ.get("SLACK_BOT_TOKEN"):
+        print("⚠️ SLACK_BOT_TOKEN not set. Please set it in Secrets.")
+
+    if not app_token:
+        print("⚠️ SLACK_APP_TOKEN not set. Please set it in Secrets.")
+
+    # Start the socket mode handler
+    handler = SocketModeHandler(app, app_token)
+    print("⚡ Heidi Bot is running!")
+    handler.start()

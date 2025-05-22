@@ -1,0 +1,76 @@
+
+{
+  "display_information": {
+    "name": "Hedi",
+    "description": "A Slack bot with various admin tools and utilities",
+    "background_color": "#4A154B"
+  },
+  "features": {
+    "bot_user": {
+      "display_name": "Hedi",
+      "always_online": true
+    },
+    "slash_commands": [
+      {
+        "command": "/h-id",
+        "description": "Get IDs of users, channels, or usergroups",
+        "usage_hint": "@username #channel",
+        "should_escape": false
+      },
+      {
+        "command": "/h-channel",
+        "description": "Send @channel message disguised as the user",
+        "usage_hint": "Your message here",
+        "should_escape": false
+      },
+      {
+        "command": "/h-ask",
+        "description": "Ask AI a question",
+        "usage_hint": "Your question here",
+        "should_escape": false
+      },
+      {
+        "command": "/h-purge",
+        "description": "Purge messages from channel",
+        "usage_hint": "number",
+        "should_escape": false
+      },
+      
+      {
+        "command": "/h-admin-add",
+        "description": "Add a user to the admin list",
+        "usage_hint": "@username or user ID",
+        "should_escape": false
+      }
+    ]
+  },
+  "oauth_config": {
+    "scopes": {
+      "bot": [
+        "channels:history",
+        "channels:join",
+        "channels:manage",
+        "channels:read",
+        "chat:write",
+        "chat:write.customize",
+        "chat:write.public",
+        "commands",
+        "conversations:history",
+        "groups:history",
+        "groups:read",
+        "groups:write",
+        "im:write",
+        "reactions:write",
+        "usergroups:read",
+        "usergroups:write",
+        "users:read",
+        "users:read.email"
+      ]
+    }
+  },
+  "settings": {
+    "org_deploy_enabled": false,
+    "socket_mode_enabled": true,
+    "token_rotation_enabled": false
+  }
+}
