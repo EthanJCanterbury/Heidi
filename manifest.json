@@ -45,6 +45,12 @@
         "description": "Get email of a user",
         "usage_hint": "@username",
         "should_escape": true
+      },
+      {
+        "command": "/h-yap",
+        "description": "Start or stop continuous AI messages in the channel",
+        "usage_hint": "",
+        "should_escape": false
       }
     ]
   },

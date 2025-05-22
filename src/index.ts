@@ -6,6 +6,7 @@ import { hAsk } from './commands/ask';
 import { hPurge } from './commands/purge';
 import { hEmail } from './commands/email';
 import { hAdminAdd } from './commands/admin-add';
+import { hYap } from './commands/yap';
 
 export const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
@@ -25,6 +26,7 @@ app.command('/h-ask', hAsk);
 app.command('/h-purge', hPurge);
 app.command('/h-email', hEmail);
 app.command('/h-admin-add', hAdminAdd);
+app.command('/h-yap', hYap);
 
 // Start the app
 (async () => {
