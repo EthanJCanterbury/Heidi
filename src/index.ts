@@ -25,25 +25,68 @@ export const app = new App({
 });
 
 let retryCount = 0;
-const maxRetries = 5;
-const retryDelay = 5000; // 5 seconds
+const maxRetries = 10;
+const initialRetryDelay = 3000; // 3 seconds initial delay
+let currentRetryDelay = initialRetryDelay;
+let reconnectionTimer: NodeJS.Timeout | null = null;
 
+// Exponential backoff function
+const getNextRetryDelay = () => {
+  const delay = Math.min(currentRetryDelay * 1.5, 60000); // Cap at 60 seconds
+  currentRetryDelay = delay;
+  return delay;
+};
+
+// Reset retry parameters
+const resetRetryParams = () => {
+  retryCount = 0;
+  currentRetryDelay = initialRetryDelay;
+};
+
+// Handle explicit disconnection with custom retry logic
+const handleDisconnection = async () => {
+  if (reconnectionTimer) {
+    clearTimeout(reconnectionTimer);
+  }
+  
+  if (retryCount < maxRetries) {
+    retryCount++;
+    console.log(`Connection lost. Attempting to reconnect (${retryCount}/${maxRetries}) in ${currentRetryDelay/1000} seconds...`);
+    
+    reconnectionTimer = setTimeout(async () => {
+      try {
+        // Attempt to cleanly shut down before reconnecting
+        try {
+          await app.stop();
+          console.log("Successfully stopped previous connection");
+        } catch (stopError) {
+          console.log("Note: Could not stop previous connection, continuing anyway");
+        }
+        
+        // Start new connection
+        await app.start();
+        console.log('⚡️ Reconnected successfully!');
+        resetRetryParams();
+      } catch (reconnectError) {
+        console.error('Reconnection failed:', reconnectError);
+        const nextDelay = getNextRetryDelay();
+        console.log(`Will try again in ${nextDelay/1000} seconds...`);
+        handleDisconnection();
+      }
+    }, currentRetryDelay);
+  } else {
+    console.error('Maximum reconnection attempts reached. Please restart the application manually.');
+  }
+};
+
+// Register error handlers
 app.error(async (error) => {
   console.error('An error occurred:', error);
   
-  if (error.message?.includes('server explicit disconnect') && retryCount < maxRetries) {
-    retryCount++;
-    console.log(`Attempting to reconnect (${retryCount}/${maxRetries}) in ${retryDelay/1000} seconds...`);
-    
-    setTimeout(async () => {
-      try {
-        await app.start();
-        console.log('⚡️ Reconnected successfully!');
-        retryCount = 0;
-      } catch (reconnectError) {
-        console.error('Reconnection failed:', reconnectError);
-      }
-    }, retryDelay);
+  if (error.message?.includes('server explicit disconnect') || 
+      error.message?.includes('WebSocket closed') ||
+      error.message?.includes('connection error')) {
+    handleDisconnection();
   }
 });
 
@@ -55,8 +98,45 @@ app.command('/h-purge', hPurge);
 app.command('/h-email', hEmail);
 app.command('/h-admin-add', hAdminAdd);
 
-// Start the app
+// Health check interval to proactively detect disconnections
+let healthCheckInterval: NodeJS.Timeout | null = null;
+
+// Function to verify connection health
+const checkConnectionHealth = async () => {
+  try {
+    // Attempt a simple API call to verify connection
+    await app.client.auth.test();
+    // If successful, connection is healthy
+  } catch (error) {
+    console.log('Health check failed, connection may be broken');
+    handleDisconnection();
+  }
+};
+
+// Start the app with health check monitoring
 (async () => {
-  await app.start();
-  console.log('⚡️ Hedi bot is running!');
+  try {
+    await app.start();
+    console.log('⚡️ Hedi bot is running!');
+    
+    // Set up periodic health checks every 5 minutes
+    healthCheckInterval = setInterval(checkConnectionHealth, 5 * 60 * 1000);
+  } catch (error) {
+    console.error('Failed to start the application:', error);
+    handleDisconnection();
+  }
 })();
+
+// Handle graceful shutdown
+process.on('SIGINT', async () => {
+  console.log('Shutting down gracefully...');
+  if (healthCheckInterval) clearInterval(healthCheckInterval);
+  if (reconnectionTimer) clearTimeout(reconnectionTimer);
+  try {
+    await app.stop();
+    console.log('Application stopped successfully');
+  } catch (error) {
+    console.error('Error during shutdown:', error);
+  }
+  process.exit(0);
+});
