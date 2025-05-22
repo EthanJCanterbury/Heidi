@@ -31,10 +31,16 @@ export async function hAsk({
 
   try {
     // Call the AI API
+    // Load raccoon instructions
+    const instructions = require('../utils/instructions.json');
+    
     const response = await axios.post(
       "https://ai.hackclub.com/chat/completions",
       {
-        messages: [{ role: "user", content: question }]
+        messages: [
+          { role: "system", content: instructions.system_prompt },
+          { role: "user", content: question }
+        ]
       },
       {
         headers: { "Content-Type": "application/json" }
