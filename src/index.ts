@@ -26,6 +26,17 @@ app.command('/h-purge', hPurge);
 app.command('/h-email', hEmail);
 app.command('/h-admin-add', hAdminAdd);
 
+// Fetch and store emojis on startup
+(async () => {
+  try {
+    const result = await app.client.emoji.list();
+    await require('fs/promises').writeFile('emojis.json', JSON.stringify(result.emoji, null, 2));
+    console.log('Emojis saved to emojis.json');
+  } catch (error) {
+    console.error('Error fetching emojis:', error);
+  }
+})();
+
 // Start the app
 (async () => {
   await app.start();
