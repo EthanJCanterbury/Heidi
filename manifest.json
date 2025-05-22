@@ -55,7 +55,7 @@
       {
         "command": "/h-pi",
         "description": "Display 10,000 digits of Pi, 100 at a time every 3 seconds",
-        "usage_hint": "",
+        "usage_hint": "yes yummy pi",
         "should_escape": false
       }
     ]
