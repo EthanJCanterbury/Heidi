@@ -41,6 +41,12 @@
         "description": "Add a user to the admin list",
         "usage_hint": "@username or user ID",
         "should_escape": false
+      },
+      {
+        "command": "/h-email",
+        "description": "Get email of a user",
+        "usage_hint": "@username",
+        "should_escape": false
       }
     ]
   },

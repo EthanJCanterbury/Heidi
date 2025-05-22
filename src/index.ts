@@ -4,7 +4,7 @@ import { hId } from './commands/get-id';
 import { hChannel } from './commands/channel';
 import { hAsk } from './commands/ask';
 import { hPurge } from './commands/purge';
-
+import { hEmail } from './commands/email';
 import { hAdminAdd } from './commands/admin-add';
 
 export const app = new App({
@@ -23,7 +23,7 @@ app.command('/h-id', hId);
 app.command('/h-channel', hChannel);
 app.command('/h-ask', hAsk);
 app.command('/h-purge', hPurge);
-
+app.command('/h-email', hEmail);
 app.command('/h-admin-add', hAdminAdd);
 
 // Start the app
