@@ -81,8 +81,23 @@ if command -v docker &> /dev/null && [ -f "Dockerfile" ]; then
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         echo -e "${YELLOW}🚀 Starting Heidi bot container...${NC}"
+        
+        # Check if .env file exists
+        if [ ! -f ".env" ]; then
+            echo -e "${RED}❌ .env file not found! Please create one with your Slack credentials.${NC}"
+            echo -e "${YELLOW}📝 Copy .env.example to .env and fill in your actual values.${NC}"
+            exit 1
+        fi
+        
+        # Load environment variables and pass them explicitly
+        set -a
+        source .env
+        set +a
+        
         docker run -d --name heidi-bot \
-            --env-file .env \
+            -e SLACK_BOT_TOKEN="$SLACK_BOT_TOKEN" \
+            -e SLACK_SIGNING_SECRET="$SLACK_SIGNING_SECRET" \
+            -e SLACK_APP_TOKEN="$SLACK_APP_TOKEN" \
             --restart unless-stopped \
             heidi-bot:latest
         
