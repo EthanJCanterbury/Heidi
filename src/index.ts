@@ -37,31 +37,33 @@ app.action(/^poll_vote_\d+$/, handlePollVote);
 
 // Handle message events (replies to Heidi's messages)
 app.event('message', async ({ event, client }) => {
-  // Only respond to threaded replies and ignore bot messages
-  if (event.subtype === 'bot_message' || !event.thread_ts || event.bot_id) {
+  // Cast event to proper type to access all properties
+  const messageEvent = event as any;
+  
+  // Only respond to threaded replies and ignore bot messages and subtypes
+  if (messageEvent.subtype || !messageEvent.thread_ts || messageEvent.bot_id) {
     return;
   }
 
   try {
     // Get the original message to check if it was from Heidi
     const thread = await client.conversations.replies({
-      channel: event.channel,
-      ts: event.thread_ts,
+      channel: messageEvent.channel,
+      ts: messageEvent.thread_ts,
       limit: 1
     });
 
     const originalMessage = thread.messages?.[0];
     
     // Check if the original message was from Heidi (our bot)
-    if (originalMessage?.bot_id === process.env.SLACK_BOT_ID || 
-        originalMessage?.username === 'Heidi' ||
-        originalMessage?.user === process.env.SLACK_USER_ID) {
+    // Look for bot_id or check if it's from our bot user
+    if (originalMessage?.bot_id || originalMessage?.username === 'Heidi') {
       
       // Load AI instructions
       const instructions = require('./utils/instructions.json');
       
       // Get user's message text
-      const userMessage = event.text || '';
+      const userMessage = messageEvent.text || '';
       
       // Call the AI API
       const axios = require('axios');
@@ -84,10 +86,12 @@ app.event('message', async ({ event, client }) => {
 
       // Reply in the thread
       await client.chat.postMessage({
-        channel: event.channel,
-        thread_ts: event.thread_ts,
+        channel: messageEvent.channel,
+        thread_ts: messageEvent.thread_ts,
         text: aiAnswer
       });
+      
+      console.log('Replied to thread:', messageEvent.thread_ts);
     }
   } catch (error) {
     console.error('Error handling reply to Heidi message:', error);
