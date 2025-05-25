@@ -89,17 +89,14 @@
         "emoji:read",
         "pins:read",
         "pins:write",
-        "reactions:read"
+        "reactions:read",
+        "im:history"
       ]
     }
   },
   "settings": {
     "event_subscriptions": {
-      "bot_events": [
-        "message.channels",
-        "message.groups",
-        "message.im"
-      ]
+      "bot_events": ["message.channels", "message.groups", "message.im"]
     },
     "interactivity": {
       "is_enabled": true
