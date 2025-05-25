@@ -18,16 +18,3 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "bun src/index.ts"
-
-[[workflows.workflow]]
-name = "Debug Slack"
-author = 17724980
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "bun src/utils/debug-slack.ts"
-
-[[ports]]
-localPort = 3000
-externalPort = 80
