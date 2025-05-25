@@ -1,0 +1,223 @@
+60 |  */
+61 | function platformErrorFromResult(result) {
+62 |     const error = errorWithCode(new Error(`An API error occurred: ${result.error}`), ErrorCode.PlatformError);
+                                     ^
+error: An API error occurred: invalid_auth
+ data: {
+  ok: false,
+  error: "invalid_auth",
+  response_metadata: [Object ...],
+},
+ code: "slack_webapi_platform_error"
+
+      at platformErrorFromResult (/app/node_modules/@slack/web-api/dist/errors.js:62:33)
+      at apiCall (/app/node_modules/@slack/web-api/dist/WebClient.js:181:32)
+57 | /**
+58 |  * A factory to create WebAPIPlatformError objects
+59 |  * @param result - Web API call result
+60 |  */
+61 | function platformErrorFromResult(result) {
+62 |     const error = errorWithCode(new Error(`An API error occurred: ${result.error}`), ErrorCode.PlatformError);
+                                     ^
+error: An API error occurred: invalid_auth
+ data: {
+  ok: false,
+  error: "invalid_auth",
+  response_metadata: [Object ...],
+},
+ code: "slack_webapi_platform_error"
+
+      at platformErrorFromResult (/app/node_modules/@slack/web-api/dist/errors.js:62:33)
+      at apiCall (/app/node_modules/@slack/web-api/dist/WebClient.js:181:32)
+
+Bun v1.2.11 (Linux x64 baseline)
+[INFO]  socket-mode:SocketModeClient:0 Going to establish a new connection to Slack ...
+[ERROR]  socket-mode:SocketModeClient:0 Failed to retrieve a new WSS URL for reconnection (error: Error: An API error occurred: invalid_auth)
+[WARN]  socket-mode:SocketModeClient:0 Failed to start a Socket Mode connection (error: An API error occurred: invalid_auth)
+[ERROR]  socket-mode:SocketModeClient:0 The internal logic unexpectedly failed (error: Error: An API error occurred: invalid_auth)
+57 | /**
+58 |  * A factory to create WebAPIPlatformError objects
+59 |  * @param result - Web API call result
+60 |  */
+61 | function platformErrorFromResult(result) {
+62 |     const error = errorWithCode(new Error(`An API error occurred: ${result.error}`), ErrorCode.PlatformError);
+                                     ^
+error: An API error occurred: invalid_auth
+ data: {
+  ok: false,
+  error: "invalid_auth",
+  response_metadata: [Object ...],
+},
+ code: "slack_webapi_platform_error"
+
+      at platformErrorFromResult (/app/node_modules/@slack/web-api/dist/errors.js:62:33)
+      at apiCall (/app/node_modules/@slack/web-api/dist/WebClient.js:181:32)
+
+Bun v1.2.11 (Linux x64 baseline)
+[INFO]  socket-mode:SocketModeClient:0 Going to establish a new connection to Slack ...
+[ERROR]  socket-mode:SocketModeClient:0 Failed to retrieve a new WSS URL for reconnection (error: Error: An API error occurred: invalid_auth)
+[WARN]  socket-mode:SocketModeClient:0 Failed to start a Socket Mode connection (error: An API error occurred: invalid_auth)
+[ERROR]  socket-mode:SocketModeClient:0 The internal logic unexpectedly failed (error: Error: An API error occurred: invalid_auth)
+57 | /**
+58 |  * A factory to create WebAPIPlatformError objects
+59 |  * @param result - Web API call result
+60 |  */
+61 | function platformErrorFromResult(result) {
+62 |     const error = errorWithCode(new Error(`An API error occurred: ${result.error}`), ErrorCode.PlatformError);
+                                     ^
+error: An API error occurred: invalid_auth
+ data: {
+  ok: false,
+  error: "invalid_auth",
+  response_metadata: [Object ...],
+},
+ code: "slack_webapi_platform_error"
+
+      at platformErrorFromResult (/app/node_modules/@slack/web-api/dist/errors.js:62:33)
+      at apiCall (/app/node_modules/@slack/web-api/dist/WebClient.js:181:32)
+57 | /**
+58 |  * A factory to create WebAPIPlatformError objects
+59 |  * @param result - Web API call result
+60 |  */
+61 | function platformErrorFromResult(result) {
+62 |     const error = errorWithCode(new Error(`An API error occurred: ${result.error}`), ErrorCode.PlatformError);
+                                     ^
+error: An API error occurred: invalid_auth
+ data: {
+  ok: false,
+  error: "invalid_auth",
+  response_metadata: [Object ...],
+},
+ code: "slack_webapi_platform_error"
+
+      at platformErrorFromResult (/app/node_modules/@slack/web-api/dist/errors.js:62:33)
+      at apiCall (/app/node_modules/@slack/web-api/dist/WebClient.js:181:32)
+
+Bun v1.2.11 (Linux x64 baseline)
+[INFO]  socket-mode:SocketModeClient:0 Going to establish a new connection to Slack ...
+[ERROR]  socket-mode:SocketModeClient:0 Failed to retrieve a new WSS URL for reconnection (error: Error: An API error occurred: invalid_auth)
+[WARN]  socket-mode:SocketModeClient:0 Failed to start a Socket Mode connection (error: An API error occurred: invalid_auth)
+[ERROR]  socket-mode:SocketModeClient:0 The internal logic unexpectedly failed (error: Error: An API error occurred: invalid_auth)
+57 | /**
+58 |  * A factory to create WebAPIPlatformError objects
+59 |  * @param result - Web API call result
+60 |  */
+61 | function platformErrorFromResult(result) {
+62 |     const error = errorWithCode(new Error(`An API error occurred: ${result.error}`), ErrorCode.PlatformError);
+                                     ^
+error: An API error occurred: invalid_auth
+ data: {
+  ok: false,
+  error: "invalid_auth",
+  response_metadata: [Object ...],
+},
+ code: "slack_webapi_platform_error"
+
+      at platformErrorFromResult (/app/node_modules/@slack/web-api/dist/errors.js:62:33)
+      at apiCall (/app/node_modules/@slack/web-api/dist/WebClient.js:181:32)
+57 | /**
+58 |  * A factory to create WebAPIPlatformError objects
+59 |  * @param result - Web API call result
+60 |  */
+61 | function platformErrorFromResult(result) {
+62 |     const error = errorWithCode(new Error(`An API error occurred: ${result.error}`), ErrorCode.PlatformError);
+                                     ^
+error: An API error occurred: invalid_auth
+ data: {
+  ok: false,
+  error: "invalid_auth",
+  response_metadata: [Object ...],
+},
+ code: "slack_webapi_platform_error"
+
+      at platformErrorFromResult (/app/node_modules/@slack/web-api/dist/errors.js:62:33)
+      at apiCall (/app/node_modules/@slack/web-api/dist/WebClient.js:181:32)
+
+Bun v1.2.11 (Linux x64 baseline)
+[INFO]  socket-mode:SocketModeClient:0 Going to establish a new connection to Slack ...
+[ERROR]  socket-mode:SocketModeClient:0 Failed to retrieve a new WSS URL for reconnection (error: Error: An API error occurred: invalid_auth)
+[WARN]  socket-mode:SocketModeClient:0 Failed to start a Socket Mode connection (error: An API error occurred: invalid_auth)
+[ERROR]  socket-mode:SocketModeClient:0 The internal logic unexpectedly failed (error: Error: An API error occurred: invalid_auth)
+57 | /**
+58 |  * A factory to create WebAPIPlatformError objects
+59 |  * @param result - Web API call result
+60 |  */
+61 | function platformErrorFromResult(result) {
+62 |     const error = errorWithCode(new Error(`An API error occurred: ${result.error}`), ErrorCode.PlatformError);
+                                     ^
+error: An API error occurred: invalid_auth
+ data: {
+  ok: false,
+  error: "invalid_auth",
+  response_metadata: [Object ...],
+},
+ code: "slack_webapi_platform_error"
+
+      at platformErrorFromResult (/app/node_modules/@slack/web-api/dist/errors.js:62:33)
+      at apiCall (/app/node_modules/@slack/web-api/dist/WebClient.js:181:32)
+
+Bun v1.2.11 (Linux x64 baseline)
+[INFO]  socket-mode:SocketModeClient:0 Going to establish a new connection to Slack ...
+57 | /**
+58 |  * A factory to create WebAPIPlatformError objects
+59 |  * @param result - Web API call result
+60 |  */
+61 | function platformErrorFromResult(result) {
+62 |     const error = errorWithCode(new Error(`An API error occurred: ${result.error}`), ErrorCode.PlatformError);
+                                     ^
+error: An API error occurred: invalid_auth
+ data: {
+  ok: false,
+  error: "invalid_auth",
+  response_metadata: [Object ...],
+},
+ code: "slack_webapi_platform_error"
+
+      at platformErrorFromResult (/app/node_modules/@slack/web-api/dist/errors.js:62:33)
+      at apiCall (/app/node_modules/@slack/web-api/dist/WebClient.js:181:32)
+[ERROR]  socket-mode:SocketModeClient:0 Failed to retrieve a new WSS URL for reconnection (error: Error: An API error occurred: invalid_auth)
+[WARN]  socket-mode:SocketModeClient:0 Failed to start a Socket Mode connection (error: An API error occurred: invalid_auth)
+[ERROR]  socket-mode:SocketModeClient:0 The internal logic unexpectedly failed (error: Error: An API error occurred: invalid_auth)
+57 | /**
+58 |  * A factory to create WebAPIPlatformError objects
+59 |  * @param result - Web API call result
+60 |  */
+61 | function platformErrorFromResult(result) {
+62 |     const error = errorWithCode(new Error(`An API error occurred: ${result.error}`), ErrorCode.PlatformError);
+                                     ^
+error: An API error occurred: invalid_auth
+ data: {
+  ok: false,
+  error: "invalid_auth",
+  response_metadata: [Object ...],
+},
+ code: "slack_webapi_platform_error"
+
+      at platformErrorFromResult (/app/node_modules/@slack/web-api/dist/errors.js:62:33)
+      at apiCall (/app/node_modules/@slack/web-api/dist/WebClient.js:181:32)
+
+Bun v1.2.11 (Linux x64 baseline)
+[INFO]  socket-mode:SocketModeClient:0 Going to establish a new connection to Slack ...
+[ERROR]  socket-mode:SocketModeClient:0 Failed to retrieve a new WSS URL for reconnection (error: Error: An API error occurred: invalid_auth)
+[WARN]  socket-mode:SocketModeClient:0 Failed to start a Socket Mode connection (error: An API error occurred: invalid_auth)
+[ERROR]  socket-mode:SocketModeClient:0 The internal logic unexpectedly failed (error: Error: An API error occurred: invalid_auth)
+57 | /**
+58 |  * A factory to create WebAPIPlatformError objects
+59 |  * @param result - Web API call result
+60 |  */
+61 | function platformErrorFromResult(result) {
+62 |     const error = errorWithCode(new Error(`An API error occurred: ${result.error}`), ErrorCode.PlatformError);
+                                     ^
+error: An API error occurred: invalid_auth
+ data: {
+  ok: false,
+  error: "invalid_auth",
+  response_metadata: [Object ...],
+},
+ code: "slack_webapi_platform_error"
+
+      at platformErrorFromResult (/app/node_modules/@slack/web-api/dist/errors.js:62:33)
+      at apiCall (/app/node_modules/@slack/web-api/dist/WebClient.js:181:32)
+
+Bun v1.2.11 (Linux x64 baseline)
+root@v37901:~/Heidi# 
