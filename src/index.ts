@@ -8,6 +8,7 @@ import { hEmail } from './commands/email';
 import { hAdminAdd } from './commands/admin-add';
 import { hYap } from './commands/yap';
 import { hPi } from './commands/pi';
+import { hPoll, handlePollVote } from './commands/poll';
 
 export const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
@@ -29,6 +30,10 @@ app.command('/h-email', hEmail);
 app.command('/h-admin-add', hAdminAdd);
 app.command('/h-yap', hYap);
 app.command('/h-pi', hPi);
+app.command('/h-poll', hPoll);
+
+// Handle poll voting button interactions
+app.action(/^poll_vote_\d+$/, handlePollVote);
 
 // Start the app
 (async () => {

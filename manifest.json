@@ -57,6 +57,12 @@
         "description": "Display 10,000 digits of Pi, 100 at a time every 3 seconds",
         "usage_hint": "yes yummy pi",
         "should_escape": false
+      },
+      {
+        "command": "/h-poll",
+        "description": "Create an interactive poll with voting buttons",
+        "usage_hint": "What's your favorite color? | Red | Blue | Green",
+        "should_escape": false
       }
     ]
   },
