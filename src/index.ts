@@ -14,10 +14,27 @@ export const app = new App({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
   socketMode: true,
   appToken: process.env.SLACK_APP_TOKEN,
+  // Add socket mode client options with reconnect configuration
+  socketMode: {
+    reconnect: true,
+    connectRetryConfig: {
+      maxReconnectionAttempts: 10,
+      retryWhen: (error) => {
+        console.log(`Reconnection attempt after error: ${error}`);
+        return true;
+      }
+    }
+  }
 });
 
+// Enhanced error handling
 app.error(async (error) => {
   console.error('An error occurred:', error);
+  
+  // Check if it's a disconnection error and log more information
+  if (error.message && error.message.includes('disconnect')) {
+    console.log('Connection to Slack was lost. Attempting to reconnect...');
+  }
 });
 
 // Register commands
@@ -30,8 +47,18 @@ app.command('/h-admin-add', hAdminAdd);
 app.command('/h-yap', hYap);
 app.command('/h-pi', hPi);
 
+import { validateTokens } from './utils/token-validator';
+
 // Start the app
 (async () => {
-  await app.start();
-  console.log('⚡️ Heidi bot is running!');
+  // Validate tokens before starting
+  if (validateTokens()) {
+    try {
+      await app.start();
+      console.log('⚡️ Heidi bot is running!');
+    } catch (error) {
+      console.error('Failed to start the app:', error);
+      console.log('Please check your Slack tokens and internet connection.');
+    }
+  }
 })();
