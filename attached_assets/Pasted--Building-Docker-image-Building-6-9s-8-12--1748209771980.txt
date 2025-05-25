@@ -1,0 +1,48 @@
+🐳 Building Docker image...
+[+] Building 6.9s (8/12)                                                                                                                                                               docker:default
+ => [internal] load build definition from Dockerfile                                                                                                                                             0.0s
+ => => transferring dockerfile: 554B                                                                                                                                                             0.0s
+ => [internal] load metadata for docker.io/oven/bun:1.2.11-alpine                                                                                                                                1.6s
+ => [internal] load .dockerignore                                                                                                                                                                0.0s
+ => => transferring context: 194B                                                                                                                                                                0.0s
+ => [1/8] FROM docker.io/oven/bun:1.2.11-alpine@sha256:6b14922b0885c3890cdb0b396090af1da486ba941df5ee94391eef64f7113c61                                                                          2.1s
+ => => resolve docker.io/oven/bun:1.2.11-alpine@sha256:6b14922b0885c3890cdb0b396090af1da486ba941df5ee94391eef64f7113c61                                                                          0.0s
+ => => sha256:2e07195d1d45d0462b7752177be1bbf55a22c6fbaacc3b247b4ebc90be5c90c2 4.03kB / 4.03kB                                                                                                   0.0s
+ => => sha256:0a9a5dfd008f05ebc27e4790db0709a29e527690c21bcbcd01481eaeb6bb49dc 3.63MB / 3.63MB                                                                                                   0.2s
+ => => sha256:098b31efb9545c3ba5609bca02cda3af16eac951a74b54c992ab4632b966b93e 32.39MB / 32.39MB                                                                                                 0.7s
+ => => sha256:6b14922b0885c3890cdb0b396090af1da486ba941df5ee94391eef64f7113c61 1.61kB / 1.61kB                                                                                                   0.0s
+ => => sha256:abdc3e29bb1aea9a198be815a2fdc513474d4e92f00ae035298b752447b1dbff 1.43kB / 1.43kB                                                                                                   0.0s
+ => => sha256:f704bebbc4fc364c9e3c15c63789dd9406b99319d6ba7386eb45132f8af14b4f 298B / 298B                                                                                                       0.5s
+ => => extracting sha256:0a9a5dfd008f05ebc27e4790db0709a29e527690c21bcbcd01481eaeb6bb49dc                                                                                                        0.2s
+ => => sha256:c7a655c127362cc2257d6825ccf4feed756b09cf23b128677d94127ad2496b4c 186B / 186B                                                                                                       0.5s
+ => => sha256:a57eac36b4696e5ede4980b4636b265029724b1ac521370a84c46253aa8250d7 3.35MB / 3.35MB                                                                                                   0.7s
+ => => sha256:eb5d2e82f698d0c6e73bf540f96f833908b234174f2ab96fd76c615d731e6250 144B / 144B                                                                                                       0.7s
+ => => extracting sha256:098b31efb9545c3ba5609bca02cda3af16eac951a74b54c992ab4632b966b93e                                                                                                        1.0s
+ => => extracting sha256:f704bebbc4fc364c9e3c15c63789dd9406b99319d6ba7386eb45132f8af14b4f                                                                                                        0.0s
+ => => extracting sha256:c7a655c127362cc2257d6825ccf4feed756b09cf23b128677d94127ad2496b4c                                                                                                        0.0s
+ => => extracting sha256:a57eac36b4696e5ede4980b4636b265029724b1ac521370a84c46253aa8250d7                                                                                                        0.1s
+ => => extracting sha256:eb5d2e82f698d0c6e73bf540f96f833908b234174f2ab96fd76c615d731e6250                                                                                                        0.0s
+ => [internal] load build context                                                                                                                                                                0.1s
+ => => transferring context: 1.73MB                                                                                                                                                              0.1s
+ => [2/8] WORKDIR /app                                                                                                                                                                           0.3s
+ => [3/8] COPY package.json bun.lock* ./                                                                                                                                                         0.0s
+ => ERROR [4/8] RUN bun install --frozen-lockfile                                                                                                                                                2.8s
+------                                                                                                                                                                                                
+ > [4/8] RUN bun install --frozen-lockfile:                                                                                                                                                           
+0.313 bun install v1.2.11 (cb6abd21)                                                                                                                                                                  
+0.354 Resolving dependencies                                                                                                                                                                          
+2.499 Resolved, downloaded and extracted [578]                                                                                                                                                        
+2.499 error: lockfile had changes, but lockfile is frozen
+2.499 note: try re-running without --frozen-lockfile and commit the updated lockfile
+------
+Dockerfile:11
+--------------------
+   9 |     
+  10 |     # Install dependencies
+  11 | >>> RUN bun install --frozen-lockfile
+  12 |     
+  13 |     # Copy source code
+--------------------
+ERROR: failed to solve: process "/bin/sh -c bun install --frozen-lockfile" did not complete successfully: exit code: 1
+❌ Failed to build Docker image
+root@v37901:~/Heidi# 
