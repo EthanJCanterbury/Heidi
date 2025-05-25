@@ -94,6 +94,13 @@
     }
   },
   "settings": {
+    "event_subscriptions": {
+      "bot_events": [
+        "message.channels",
+        "message.groups",
+        "message.im"
+      ]
+    },
     "interactivity": {
       "is_enabled": true
     },
