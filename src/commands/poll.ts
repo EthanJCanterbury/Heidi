@@ -108,7 +108,7 @@ export async function hPoll({
       type: "section",
       text: {
         type: "mrkdwn",
-        text: `📊 **${question}**\n\n_Vote by clicking the buttons below!_`
+        text: `📊 *${question}*\n\n_Vote by clicking the buttons below!_`
       }
     },
     ...buttonRows,
@@ -124,10 +124,20 @@ export async function hPoll({
   ];
 
   try {
+    // Get user info to mask as the user
+    const userInfo = await client.users.info({
+      user: command.user_id
+    });
+    
+    const userName = userInfo.user?.real_name;
+    const avatar = userInfo.user?.profile?.image_original || userInfo.user?.profile?.image_192;
+
     await client.chat.postMessage({
       channel: command.channel_id,
       text: `📊 Poll: ${question}`,
-      blocks: blocks
+      blocks: blocks,
+      username: userName,
+      icon_url: avatar
     });
   } catch (error) {
     console.error('Error posting poll:', error);
@@ -181,7 +191,7 @@ export async function handlePollVote({
   const totalVotes = Array.from(poll.votes.values()).reduce((sum, count) => sum + count, 0);
 
   // Create updated poll display
-  let pollText = `📊 **${poll.question}**\n\n`;
+  let pollText = `📊 *${poll.question}*\n\n`;
   
   poll.options.forEach((option, index) => {
     const voteCount = poll.votes.get(index.toString()) || 0;
