@@ -54,10 +54,23 @@ import { validateTokens } from './utils/token-validator';
   // Validate tokens before starting
   if (validateTokens()) {
     try {
-      await app.start();
-      console.log('⚡️ Heidi bot is running!');
+      const port = parseInt(process.env.PORT || '3000');
+      await app.start(port);
+      console.log(`⚡️ Heidi bot is running on port ${port}!`);
+      console.log('Socket Mode enabled: Listening for Slack events...');
+      
+      // Add listener for successful connection
+      app.client.auth.test()
+        .then(response => {
+          console.log(`✅ Successfully connected to Slack workspace: ${response.team}`);
+          console.log(`🤖 Bot User: ${response.user}`);
+        })
+        .catch(error => {
+          console.error('❌ Failed to connect to Slack workspace:', error);
+          console.log('Please verify your SLACK_BOT_TOKEN is correct and has the required scopes.');
+        });
     } catch (error) {
-      console.error('Failed to start the app:', error);
+      console.error('❌ Failed to start the app:', error);
       console.log('Please check your Slack tokens and internet connection.');
     }
   }
