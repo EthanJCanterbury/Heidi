@@ -46,7 +46,6 @@
         "usage_hint": "@username",
         "should_escape": true
       },
-      
       {
         "command": "/h-poll",
         "description": "Create an interactive poll with voting buttons",
@@ -56,7 +55,15 @@
     ]
   },
   "oauth_config": {
+    "redirect_urls": [
+      "https://8a780109-5f1c-48b6-96fc-044bc5775c16-00-1b4xnm0o9km1n.picard.replit.dev/auth/slack/callback",
+      "https://my.hack.club/auth/slack/callback",
+      "https://clubdash.hackclub.com/auth/slack/callback",
+      "https://dashboard.hackclub.com/auth/slack/callback",
+      "https://c6dc6783-c7e3-4d7e-9d95-ddd0eb5cd0cd-00-20z2luev0qmzl.janeway.replit.dev/auth/slack/callback"
+    ],
     "scopes": {
+      "user": ["identity.basic", "identity.avatar", "identity.email"],
       "bot": [
         "channels:history",
         "channels:join",
@@ -66,20 +73,21 @@
         "chat:write.customize",
         "chat:write.public",
         "commands",
+        "emoji:read",
         "groups:history",
         "groups:read",
         "groups:write",
+        "im:history",
         "im:write",
+        "pins:read",
+        "pins:write",
+        "reactions:read",
         "reactions:write",
         "usergroups:read",
         "usergroups:write",
         "users:read",
         "users:read.email",
-        "emoji:read",
-        "pins:read",
-        "pins:write",
-        "reactions:read",
-        "im:history"
+        "users.profile:read"
       ]
     }
   },
