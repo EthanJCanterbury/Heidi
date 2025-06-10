@@ -1,4 +1,3 @@
-
 import { App } from '@slack/bolt';
 import { hId } from './commands/get-id';
 import { hChannel } from './commands/channel';
@@ -35,7 +34,7 @@ app.action(/^poll_vote_\d+$/, handlePollVote);
 app.event('message', async ({ event, client }) => {
   // Cast event to proper type to access all properties
   const messageEvent = event as any;
-  
+
   // Only respond to threaded replies and ignore bot messages and subtypes
   if (messageEvent.subtype || !messageEvent.thread_ts || messageEvent.bot_id) {
     return;
@@ -50,17 +49,17 @@ app.event('message', async ({ event, client }) => {
     });
 
     const originalMessage = thread.messages?.[0];
-    
+
     // Check if the original message was from Heidi (our bot)
     // Look for bot_id or check if it's from our bot user
     if (originalMessage?.bot_id || originalMessage?.username === 'Heidi') {
-      
+
       // Load AI instructions
       const instructions = require('./utils/instructions.json');
-      
+
       // Get user's message text
       const userMessage = messageEvent.text || '';
-      
+
       // Call the AI API
       const axios = require('axios');
       const response = await axios.post(
@@ -86,35 +85,40 @@ app.event('message', async ({ event, client }) => {
         thread_ts: messageEvent.thread_ts,
         text: aiAnswer
       });
-      
+
       console.log('Replied to thread:', messageEvent.thread_ts);
     }
   } catch (error) {
     console.error('Error handling reply to Heidi message:', error);
-    
-    // Try to send an error message in the thread if possible
+
+    // Don't try to reply in channel if we get channel-related errors
+    // Instead, DM the user directly
     if (error.code === 'slack_webapi_platform_error') {
-      let errorMsg = "Sorry, I had trouble responding! ";
-      
+      let errorMsg = "Sorry, I had trouble responding to your message! ";
+
       switch (error.data?.error) {
         case 'channel_not_found':
-          errorMsg += "I'm not in this channel anymore.";
+          errorMsg += "I'm not in that channel anymore.";
           break;
         case 'not_in_channel':
-          errorMsg += "I'm not a member of this channel.";
+          errorMsg += "I'm not a member of that channel.";
+          break;
+        case 'thread_not_found':
+          errorMsg += "The original thread was deleted.";
           break;
         default:
           errorMsg += "Please try again later.";
       }
-      
+
+      // Try to DM the user directly instead of replying in channel
       try {
         await client.chat.postMessage({
-          channel: messageEvent.channel,
-          thread_ts: messageEvent.thread_ts,
+          channel: messageEvent.user,
           text: errorMsg
         });
-      } catch (replyError) {
-        console.error('Failed to send error reply:', replyError);
+        console.log(`Sent error DM to user ${messageEvent.user}`);
+      } catch (dmError) {
+        console.error('Failed to send DM to user:', dmError);
       }
     }
   }
@@ -136,12 +140,12 @@ async function startBot() {
     } catch (error) {
       retryCount++;
       console.error(`❌ Failed to start bot (attempt ${retryCount}):`, error);
-      
+
       if (error.message?.includes('invalid_auth')) {
         console.error('🔑 Authentication failed. Please check your Slack tokens in the Secrets tab.');
         console.error('Required tokens: SLACK_BOT_TOKEN, SLACK_SIGNING_SECRET, SLACK_APP_TOKEN');
       }
-      
+
       console.log(`⏳ Retrying in 5 minutes...`);
       await new Promise(resolve => setTimeout(resolve, retryDelay));
     }
