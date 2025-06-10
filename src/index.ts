@@ -6,8 +6,6 @@ import { hAsk } from './commands/ask';
 import { hPurge } from './commands/purge';
 import { hEmail } from './commands/email';
 import { hAdminAdd } from './commands/admin-add';
-import { hYap } from './commands/yap';
-import { hPi } from './commands/pi';
 import { hPoll, handlePollVote } from './commands/poll';
 
 export const app = new App({
@@ -28,8 +26,6 @@ app.command('/h-ask', hAsk);
 app.command('/h-purge', hPurge);
 app.command('/h-email', hEmail);
 app.command('/h-admin-add', hAdminAdd);
-app.command('/h-yap', hYap);
-app.command('/h-pi', hPi);
 app.command('/h-poll', hPoll);
 
 // Handle poll voting button interactions
@@ -98,8 +94,63 @@ app.event('message', async ({ event, client }) => {
   }
 });
 
-// Start the app
-(async () => {
-  await app.start();
-  console.log('⚡️ Heidi bot is running!');
-})();
+// Production-ready startup with reconnection logic
+async function startBot() {
+  const maxRetries = Infinity;
+  let retryCount = 0;
+  const retryDelay = 5 * 60 * 1000; // 5 minutes
+
+  while (retryCount < maxRetries) {
+    try {
+      console.log(`🔄 Starting Heidi bot (attempt ${retryCount + 1})...`);
+      await app.start();
+      console.log('⚡️ Heidi bot is running!');
+      retryCount = 0; // Reset retry count on successful connection
+      break;
+    } catch (error) {
+      retryCount++;
+      console.error(`❌ Failed to start bot (attempt ${retryCount}):`, error);
+      
+      if (error.message?.includes('invalid_auth')) {
+        console.error('🔑 Authentication failed. Please check your Slack tokens in the Secrets tab.');
+        console.error('Required tokens: SLACK_BOT_TOKEN, SLACK_SIGNING_SECRET, SLACK_APP_TOKEN');
+      }
+      
+      console.log(`⏳ Retrying in 5 minutes...`);
+      await new Promise(resolve => setTimeout(resolve, retryDelay));
+    }
+  }
+}
+
+// Handle process termination gracefully
+process.on('SIGINT', async () => {
+  console.log('🛑 Received SIGINT, shutting down gracefully...');
+  await app.stop();
+  process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+  console.log('🛑 Received SIGTERM, shutting down gracefully...');
+  await app.stop();
+  process.exit(0);
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+  console.error('💥 Uncaught Exception:', error);
+  setTimeout(() => {
+    console.log('🔄 Restarting after uncaught exception...');
+    startBot();
+  }, 5000);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('💥 Unhandled Rejection at:', promise, 'reason:', reason);
+  setTimeout(() => {
+    console.log('🔄 Restarting after unhandled rejection...');
+    startBot();
+  }, 5000);
+});
+
+// Start the bot
+startBot();

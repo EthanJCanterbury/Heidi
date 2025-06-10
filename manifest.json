@@ -46,18 +46,7 @@
         "usage_hint": "@username",
         "should_escape": true
       },
-      {
-        "command": "/h-yap",
-        "description": "Start or stop continuous AI messages in the channel",
-        "usage_hint": "yippity yap",
-        "should_escape": false
-      },
-      {
-        "command": "/h-pi",
-        "description": "Display 10,000 digits of Pi, 100 at a time every 3 seconds",
-        "usage_hint": "yes yummy pi",
-        "should_escape": false
-      },
+      
       {
         "command": "/h-poll",
         "description": "Create an interactive poll with voting buttons",
