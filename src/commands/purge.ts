@@ -35,10 +35,36 @@ export async function hPurge({
     }
 
     // Get channel history
-    const result = await client.conversations.history({
-      channel: command.channel_id,
-      limit: count + 1  // +1 to include the command itself
-    });
+    let result;
+    try {
+      result = await client.conversations.history({
+        channel: command.channel_id,
+        limit: count + 1  // +1 to include the command itself
+      });
+    } catch (error) {
+      let errorMessage = "Sorry, I couldn't access this channel's history. ";
+      
+      if (error.code === 'slack_webapi_platform_error') {
+        switch (error.data?.error) {
+          case 'channel_not_found':
+            errorMessage += "The channel doesn't exist or I don't have access to it.";
+            break;
+          case 'not_in_channel':
+            errorMessage += "I'm not a member of this channel.";
+            break;
+          default:
+            errorMessage += `Error: ${error.data?.error}`;
+        }
+      } else {
+        errorMessage += error.message;
+      }
+      
+      await client.chat.postMessage({
+        channel: command.user_id,
+        text: errorMessage
+      });
+      return;
+    }
 
     // Skip the first message (the command itself)
     const messagesToDelete = result.messages?.slice(1, count + 1) || [];

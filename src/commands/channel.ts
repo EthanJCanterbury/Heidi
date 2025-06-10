@@ -67,10 +67,38 @@ export async function hChannel({
     console.log(`Successfully sent channel ping with ts: ${response.ts}`);
   } catch (error) {
     console.error(`Error sending channel notification: ${error}`);
-    // Notify the user of the error
-    await client.chat.postMessage({
-      channel: command.user_id,  // Send DM to the user
-      text: `Error sending channel notification: ${error}`
-    });
+    
+    let errorMessage = "Sorry, I couldn't send the channel notification. ";
+    
+    if (error.code === 'slack_webapi_platform_error') {
+      switch (error.data?.error) {
+        case 'channel_not_found':
+          errorMessage += "I'm not in this channel or it doesn't exist. Please add me to the channel first!";
+          break;
+        case 'not_in_channel':
+          errorMessage += "I'm not a member of this channel. Please invite me first!";
+          break;
+        case 'access_denied':
+          errorMessage += "I don't have permission to post in this channel.";
+          break;
+        case 'invalid_auth':
+          errorMessage += "My authentication tokens need to be updated.";
+          break;
+        default:
+          errorMessage += `Slack API error: ${error.data?.error || 'Unknown error'}`;
+      }
+    } else {
+      errorMessage += `Technical error: ${error.message}`;
+    }
+    
+    // Notify the user of the error via DM
+    try {
+      await client.chat.postMessage({
+        channel: command.user_id,
+        text: errorMessage
+      });
+    } catch (dmError) {
+      console.error('Failed to send error DM to user:', dmError);
+    }
   }
 }

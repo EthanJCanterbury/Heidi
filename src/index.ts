@@ -91,6 +91,32 @@ app.event('message', async ({ event, client }) => {
     }
   } catch (error) {
     console.error('Error handling reply to Heidi message:', error);
+    
+    // Try to send an error message in the thread if possible
+    if (error.code === 'slack_webapi_platform_error') {
+      let errorMsg = "Sorry, I had trouble responding! ";
+      
+      switch (error.data?.error) {
+        case 'channel_not_found':
+          errorMsg += "I'm not in this channel anymore.";
+          break;
+        case 'not_in_channel':
+          errorMsg += "I'm not a member of this channel.";
+          break;
+        default:
+          errorMsg += "Please try again later.";
+      }
+      
+      try {
+        await client.chat.postMessage({
+          channel: messageEvent.channel,
+          thread_ts: messageEvent.thread_ts,
+          text: errorMsg
+        });
+      } catch (replyError) {
+        console.error('Failed to send error reply:', replyError);
+      }
+    }
   }
 });
 
