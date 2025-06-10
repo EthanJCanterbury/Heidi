@@ -16,6 +16,12 @@ export const app = new App({
 
 app.error(async (error) => {
   console.error('An error occurred:', error);
+  
+  // Don't crash the app for channel-related errors
+  if (error.code === 'slack_webapi_platform_error') {
+    console.log('Slack API error handled, continuing...');
+    return;
+  }
 });
 
 // Register commands
@@ -121,6 +127,9 @@ app.event('message', async ({ event, client }) => {
         console.error('Failed to send DM to user:', dmError);
       }
     }
+    
+    // Don't let this error bubble up to crash the app
+    return;
   }
 });
 
